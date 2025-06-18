@@ -1,7 +1,12 @@
 import {
   Box,
   CssBaseline,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Paper,
+  Radio,
+  RadioGroup,
   Stack,
   ThemeProvider,
 } from "@mui/material";
@@ -14,6 +19,9 @@ import { theme } from "./theme";
 
 export const App: FC = () => {
   const [data, setData] = useState<number[]>([]);
+  const [dataOrigin, setDataOrigin] = useState<
+    "sample" | "population"
+  >("population");
 
   return (
     <ThemeProvider theme={theme}>
@@ -32,7 +40,30 @@ export const App: FC = () => {
           variant="outlined"
           sx={{ padding: 1 }}
         >
-          <Stack spacing={2}>
+          <Stack spacing={1}>
+            <FormControl>
+              <FormLabel>{`แหล่งที่มาของข้อมูล`}</FormLabel>
+              <RadioGroup
+                row
+                value={dataOrigin}
+                onChange={(e) =>
+                  setDataOrigin(
+                    e.target.value as typeof dataOrigin
+                  )
+                }
+              >
+                <FormControlLabel
+                  value="population"
+                  control={<Radio />}
+                  label="ประชากร"
+                />
+                <FormControlLabel
+                  value="sample"
+                  control={<Radio />}
+                  label="กลุ่มตัวอย่าง"
+                />
+              </RadioGroup>
+            </FormControl>
             <DatasetForm
               initValue={data}
               onSubmit={setData}
@@ -43,13 +74,20 @@ export const App: FC = () => {
           variant="outlined"
           sx={{ padding: 1 }}
         >
-          <CentralStatsDisplay data={data} />
+          <CentralStatsDisplay
+            dataOrigin={dataOrigin}
+            data={data}
+          />
         </Paper>
         <Paper
           variant="outlined"
           sx={{ padding: 1 }}
+          component="div"
         >
-          <DispersionStatsDisplay data={data} />
+          <DispersionStatsDisplay
+            dataOrigin={dataOrigin}
+            data={data}
+          />
         </Paper>
         <Paper
           variant="outlined"

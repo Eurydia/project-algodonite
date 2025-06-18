@@ -1,20 +1,71 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { mean, median, mode } from "d3-array";
+import { median, mode, sum } from "d3-array";
 import { useMemo, type FC } from "react";
+import { StatItem } from "./StatItem";
 
 type Props = {
   data: number[];
+  dataOrigin: "sample" | "population";
 };
 export const CentralStatsDisplay: FC<Props> = ({
   data,
+  dataOrigin,
 }) => {
   const stat = useMemo(() => {
-    return {
-      mean: data.length > 0 ? mean(data) ?? null : null,
-      mode: data.length > 0 ? mode(data) : null,
-      median: data.length > 0 ? median(data) ?? null : null,
-    };
-  }, [data]);
+    const dataSum = sum(data);
+    const size = data.length;
+
+    let dataMean: number | undefined;
+    if (size > 0) {
+      dataMean = dataSum / size;
+    }
+    const dataSorted = [...data].sort();
+
+    const dataMedian = median(data);
+
+    return [
+      {
+        label:
+          dataOrigin === "sample"
+            ? `ค่าเฉลี่ย $\\overline{x}$`
+            : `ค่าเฉลี่ย $\\mu$`,
+        value: dataMean,
+        expr:
+          dataOrigin === "sample"
+            ? `\\overline{x}&=\\frac{1}{n}\\sum_{i=1}^{n} x_{i}`
+            : `\\mu=\\frac{1}{N}\\sum_{i=1}^{N} x_{i}`,
+        exprExt:
+          dataMean === undefined
+            ? undefined
+            : `&=\\frac{1}{${size}}(${dataSum})`,
+      },
+      {
+        label: "มัธยฐาน",
+        value: dataMedian,
+        expr:
+          dataMedian === undefined
+            ? undefined
+            : `&=\\begin{matrix} \\langle${dataSorted
+                .map((datum, index) => {
+                  let fmt =
+                    datum.toLocaleString("fullwide");
+                  const mid = (size + 1) / 2;
+                  if (
+                    index + 1 === Math.ceil(mid) ||
+                    index + 1 === Math.floor(mid)
+                  ) {
+                    fmt = `\\underline{${fmt}}`;
+                  }
+                  return fmt;
+                })
+                .join(",&")}\\rangle \\end{matrix}`,
+      },
+      {
+        label: "ฐานนิยม",
+        value: mode(data),
+      },
+    ];
+  }, [data, dataOrigin]);
 
   return (
     <Box>
@@ -29,50 +80,18 @@ export const CentralStatsDisplay: FC<Props> = ({
       >
         ค่ากลางของข้อมูล
       </Typography>
+
       <Stack
         spacing={1}
         useFlexGap
         flexWrap="wrap"
       >
-        <Stack
-          spacing={1}
-          direction="row"
-          flexWrap="wrap"
-          useFlexGap
-        >
-          <Typography>{`ค่าเฉลี่ย:`}</Typography>
-          <Typography>
-            {stat.mean === null
-              ? "ไม่มีข้อมูล"
-              : stat.mean.toLocaleString("fullwide")}
-          </Typography>
-        </Stack>
-        <Stack
-          spacing={1}
-          direction="row"
-          flexWrap="wrap"
-          useFlexGap
-        >
-          <Typography>{`มัธยฐาน:`}</Typography>
-          <Typography>
-            {stat.median === null
-              ? "ไม่มีข้อมูล"
-              : stat.median.toLocaleString("fullwide")}
-          </Typography>
-        </Stack>
-        <Stack
-          spacing={1}
-          direction="row"
-          flexWrap="wrap"
-          useFlexGap
-        >
-          <Typography>{`ฐานนิยม:`}</Typography>
-          <Typography>
-            {stat.mode === null
-              ? "ไม่มีข้อมูล"
-              : stat.mode.toLocaleString("fullwide")}
-          </Typography>
-        </Stack>
+        {stat.map((data, index) => (
+          <StatItem
+            key={`stat-item-${index}`}
+            {...data}
+          />
+        ))}
       </Stack>
     </Box>
   );

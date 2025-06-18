@@ -23,7 +23,8 @@ export const PositionStatsDisplay: FC<Props> = ({
   const [percentile, setPercentile] = useState(50);
 
   const stat = useMemo(() => {
-    const dataSorted = [...data].sort();
+    const dataSorted = [...data];
+    dataSorted.sort((a, b) => a - b);
 
     return [
       makeQuantileItem(dataSorted, 1),
@@ -33,7 +34,8 @@ export const PositionStatsDisplay: FC<Props> = ({
   }, [data]);
 
   const percentileItem = useMemo(() => {
-    return makePercentileItem([...data].sort(), percentile);
+    const q = [...data].sort((a, b) => a - b);
+    return makePercentileItem(q, percentile);
   }, [data, percentile]);
 
   return (
@@ -49,48 +51,7 @@ export const PositionStatsDisplay: FC<Props> = ({
       >
         ค่าวัดตำแหน่งของข้อมูล
       </Typography>
-      <Typography gutterBottom>เปอร์เซ็นไทล์</Typography>
-      <Grid
-        container
-        spacing={2}
-        sx={{ alignItems: "center" }}
-      >
-        <Grid>
-          <PercentRounded />
-        </Grid>
-        <Grid size="grow">
-          <Slider
-            value={percentile}
-            onChange={(_, v) => setPercentile(v)}
-          />
-        </Grid>
-        <Grid>
-          <Input
-            value={percentile}
-            size="small"
-            onChange={(e) => {
-              setPercentile(
-                e.target.value === ""
-                  ? 0
-                  : Number(e.target.value)
-              );
-            }}
-            onBlur={() => {
-              if (percentile < 0) {
-                setPercentile(0);
-              } else if (percentile > 100) {
-                setPercentile(100);
-              }
-            }}
-            inputProps={{
-              step: 1,
-              min: 0,
-              max: 100,
-              type: "number",
-            }}
-          />
-        </Grid>
-      </Grid>
+
       <Stack
         spacing={1}
         useFlexGap
@@ -102,6 +63,50 @@ export const PositionStatsDisplay: FC<Props> = ({
             {...data}
           />
         ))}
+        <Typography gutterBottom>เปอร์เซ็นไทล์</Typography>
+        <Grid
+          container
+          spacing={2}
+          sx={{ alignItems: "center" }}
+        >
+          <Grid>
+            <PercentRounded />
+          </Grid>
+          <Grid size="grow">
+            <Slider
+              max={99}
+              min={1}
+              value={percentile}
+              onChange={(_, v) => setPercentile(v)}
+            />
+          </Grid>
+          <Grid>
+            <Input
+              value={percentile}
+              size="small"
+              onChange={(e) => {
+                const v =
+                  e.target.value === ""
+                    ? 0
+                    : Number(e.target.value);
+                setPercentile(Math.max(Math.min(99, v), 1));
+              }}
+              onBlur={() => {
+                if (percentile < 0) {
+                  setPercentile(0);
+                } else if (percentile > 100) {
+                  setPercentile(100);
+                }
+              }}
+              inputProps={{
+                step: 1,
+                min: 1,
+                max: 99,
+                type: "number",
+              }}
+            />
+          </Grid>
+        </Grid>
         <StatItem {...percentileItem} />
       </Stack>
     </Box>

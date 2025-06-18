@@ -2,11 +2,12 @@ export const makeQuantileItem = (
   dataSorted: number[],
   r: number
 ) => {
-  const pos = r * ((dataSorted.length + 1) / 4);
+  const size = dataSorted.length + 1;
+  const pos = r * (size / 4);
   const decimal = pos - Math.floor(pos);
 
-  const posLeft = Math.floor(pos) - 1;
-  const posRight = Math.ceil(pos) - 1;
+  const posLeft = Math.max(Math.floor(pos) - 1, 0);
+  const posRight = Math.min(size - 2, Math.ceil(pos) - 1);
 
   const valueLeft = dataSorted[posLeft];
   const valueRight = dataSorted[posRight];
@@ -22,7 +23,7 @@ export const makeQuantileItem = (
     expr: `Q_{${r}}&=\\frac{${r}}{4}(N+1)`,
     exprExt: isNaN(value)
       ? undefined
-      : `&=\\frac{${r}\\cdot${dataSorted.length + 1}}{4}
+      : `&=\\frac{${r}\\cdot${size}}{4}
         \\\\&=${pos}
         \\\\&\\langle\\begin{matrix}
         ${dataSorted
@@ -34,11 +35,7 @@ export const makeQuantileItem = (
             return fmt;
           })
           .join(",&")}\\rangle\\end{matrix}
-        \\\\&=${
-          dataSorted[Math.floor(pos) - 1]
-        } + (${decimal} \\cdot|${
-          dataSorted[Math.ceil(pos) - 1]
-        } - ${dataSorted[Math.floor(pos) - 1]} |)`,
+        \\\\&=${valueLeft} + (${decimal} \\cdot|${valueRight} - ${valueLeft} |)`,
   };
 };
 
@@ -46,11 +43,12 @@ export const makePercentileItem = (
   dataSorted: number[],
   r: number
 ) => {
-  const pos = r * ((dataSorted.length + 1) / 100);
+  const size = dataSorted.length + 1;
+  const pos = (r / 100) * size;
   const decimal = pos - Math.floor(pos);
 
-  const posLeft = Math.floor(pos) - 1;
-  const posRight = Math.ceil(pos) - 1;
+  const posLeft = Math.max(0, Math.floor(pos) - 1);
+  const posRight = Math.min(size - 2, Math.ceil(pos) - 1);
 
   const valueLeft = dataSorted[posLeft];
   const valueRight = dataSorted[posRight];
@@ -66,7 +64,7 @@ export const makePercentileItem = (
     expr: `P_{${r}}&=\\frac{${r}}{100}(N+1)`,
     exprExt: isNaN(value)
       ? undefined
-      : `&=\\frac{${r}\\cdot${dataSorted.length + 1}}{4}
+      : `&=\\frac{${r}\\cdot${size}}{100}
         \\\\&=${pos}
         \\\\&\\langle\\begin{matrix}
         ${dataSorted
@@ -78,10 +76,6 @@ export const makePercentileItem = (
             return fmt;
           })
           .join(",&")}\\rangle\\end{matrix}
-        \\\\&=${
-          dataSorted[Math.floor(pos) - 1]
-        } + (${decimal} \\cdot|${
-          dataSorted[Math.ceil(pos) - 1]
-        } - ${dataSorted[Math.floor(pos) - 1]} |)`,
+        \\\\&=${valueLeft} + (${decimal} \\cdot|${valueLeft} - ${valueLeft}|)`,
   };
 };

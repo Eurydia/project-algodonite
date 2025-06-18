@@ -3,9 +3,9 @@ import {
   Stack,
   TextField,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import { useState, type FC } from "react";
+import { MathBlock } from "./MathBlock";
 
 type Props = {
   initValue: number[];
@@ -21,15 +21,17 @@ export const DatasetForm: FC<Props> = ({
 
   const parsed = rawInput
     .split(",")
+    .filter(Boolean)
     .map((token) => {
       try {
-        return parseFloat(token);
+        return Number(token);
       } catch {
         return null;
       }
     })
     .filter((value) => value !== null)
     .filter((value) => !isNaN(value));
+  console.debug(parsed);
 
   return (
     <Stack spacing={1}>
@@ -75,17 +77,19 @@ export const DatasetForm: FC<Props> = ({
           ลบทั้งหมด
         </Button>
       </Toolbar>
-      <Typography>
-        {`ข้อมูลที่จะถูกใช้: ${
-          parsed.length > 0
-            ? parsed
-                .map((value) =>
-                  value.toLocaleString("fullwide")
-                )
-                .join(", ")
-            : `ว่าง`
-        }`}
-      </Typography>
+      <MathBlock
+        expr={`$\\text{ข้อมูลที่จะถูกใช้ 
+          $(n=${parsed.length})$}:
+          ${
+            parsed.length > 0
+              ? parsed
+                  .map((tok) =>
+                    tok.toLocaleString("fullwide")
+                  )
+                  .join(", ")
+              : `\\text{ว่าง}`
+          }$`}
+      />
     </Stack>
   );
 };

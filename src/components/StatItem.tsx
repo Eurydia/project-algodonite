@@ -22,7 +22,6 @@ export const StatItem: FC<Props> = ({
       : "";
   return (
     <Stack
-      spacing={1}
       flexWrap="wrap"
       useFlexGap
     >

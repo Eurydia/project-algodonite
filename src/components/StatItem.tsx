@@ -5,7 +5,7 @@ import { MathBlock } from "./MathBlock";
 type Props = {
   label: string;
   expr?: string;
-  value?: number;
+  value?: number | string;
   exprExt?: string;
 };
 export const StatItem: FC<Props> = ({
@@ -18,7 +18,7 @@ export const StatItem: FC<Props> = ({
 
   const v =
     value !== undefined
-      ? value.toLocaleString("fullwide")
+      ? `$${value.toLocaleString("fullwide")}$`
       : "";
   return (
     <Stack
@@ -32,9 +32,7 @@ export const StatItem: FC<Props> = ({
         flexDirection="row"
         justifyContent="space-between"
       >
-        <MathBlock
-          expr={`$\\underline{\\text{${label}}}: ${v}$`}
-        />
+        <MathBlock expr={`${label}: ${v}`} />
         {expr !== undefined && (
           <Typography
             sx={{

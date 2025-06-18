@@ -67,6 +67,7 @@ export const App: FC = () => {
             <DatasetForm
               initValue={data}
               onSubmit={setData}
+              originMode={dataOrigin}
             />
           </Stack>
         </Paper>
@@ -99,4 +100,3 @@ export const App: FC = () => {
     </ThemeProvider>
   );
 };
-

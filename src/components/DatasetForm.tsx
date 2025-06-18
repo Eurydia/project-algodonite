@@ -10,10 +10,12 @@ import { MathBlock } from "./MathBlock";
 type Props = {
   initValue: number[];
   onSubmit: (value: number[]) => unknown;
+  originMode: "population" | "sample";
 };
 export const DatasetForm: FC<Props> = ({
   initValue,
   onSubmit,
+  originMode,
 }) => {
   const [rawInput, setRawInput] = useState(
     initValue.join(", ")
@@ -31,7 +33,6 @@ export const DatasetForm: FC<Props> = ({
     })
     .filter((value) => value !== null)
     .filter((value) => !isNaN(value));
-  console.debug(parsed);
 
   return (
     <Stack spacing={1}>
@@ -78,17 +79,20 @@ export const DatasetForm: FC<Props> = ({
         </Button>
       </Toolbar>
       <MathBlock
-        expr={`$\\text{ข้อมูลที่จะถูกใช้ 
-          $(n=${parsed.length})$}:
+        expr={`ข้อมูลที่จะถูกใช้ 
+          $(${originMode === "population" ? "N" : "n"}=${
+          parsed.length
+        })$
+          :
           ${
             parsed.length > 0
-              ? parsed
+              ? `$${parsed
                   .map((tok) =>
                     tok.toLocaleString("fullwide")
                   )
-                  .join(", ")
-              : `\\text{ว่าง}`
-          }$`}
+                  .join(", ")}$`
+              : `ว่าง`
+          }`}
       />
     </Stack>
   );

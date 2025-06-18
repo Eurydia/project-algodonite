@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { median, mode, sum } from "d3-array";
+import { max, median, rollup, sum } from "d3-array";
 import { useMemo, type FC } from "react";
 import { StatItem } from "./StatItem";
 
@@ -22,6 +22,17 @@ export const CentralStatsDisplay: FC<Props> = ({
     const dataSorted = [...data].sort();
 
     const dataMedian = median(data);
+
+    const counts = rollup(
+      data,
+      (v) => v.length,
+      (d) => d
+    );
+    const maxCount = max(counts.values());
+
+    const dataMode = Array.from(counts)
+      .filter(([, count]) => count === maxCount)
+      .map(([value]) => value);
 
     return [
       {
@@ -62,7 +73,7 @@ export const CentralStatsDisplay: FC<Props> = ({
       },
       {
         label: "ฐานนิยม",
-        value: mode(data),
+        value: dataMode.length > 1 ? "-" : dataMode[0],
       },
     ];
   }, [data, dataOrigin]);

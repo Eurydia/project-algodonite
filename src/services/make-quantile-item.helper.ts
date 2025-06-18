@@ -18,7 +18,7 @@ export const makeQuantileItem = (
     valueLeft + decimal * Math.abs(valueLeft - valueRight);
 
   return {
-    label: `ควอร์ไทล์ที่ ${r}`,
+    label: `ควอร์ไทล์ที่ $${r}$`,
     value: isNaN(value) ? undefined : value,
     expr: `Q_{${r}}&=\\frac{${r}}{4}(N+1)`,
     exprExt: isNaN(value)
@@ -59,7 +59,7 @@ export const makePercentileItem = (
     valueLeft + decimal * Math.abs(valueLeft - valueRight);
 
   return {
-    label: `เปอร์เซ็นไทล์ที่ ${r}`,
+    label: `เปอร์เซ็นไทล์ที่ $${r}$`,
     value: isNaN(value) ? undefined : value,
     expr: `P_{${r}}&=\\frac{${r}}{100}(N+1)`,
     exprExt: isNaN(value)

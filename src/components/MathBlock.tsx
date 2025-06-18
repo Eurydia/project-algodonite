@@ -8,7 +8,7 @@ type Props = {
 export const MathBlock: FC<Props> = ({ expr }) => {
   return (
     <Box component="div">
-      <MathJax dynamic>{expr}</MathJax>
+      <MathJax dynamic>{expr.normalize("NFC")}</MathJax>
     </Box>
   );
 };

@@ -9,7 +9,7 @@ createRoot(document.getElementById("root")!).render(
       renderMode="post"
       hideUntilTypeset="every"
       config={{
-        loader: { load: ["input/tex", "output/svg"] },
+        loader: ["input/tex", "output/svg"],
         tex: {
           inlineMath: [["$", "$"]],
           displayMath: [["$$", "$$"]],
@@ -20,4 +20,3 @@ createRoot(document.getElementById("root")!).render(
     </MathJaxContext>
   </StrictMode>
 );
-

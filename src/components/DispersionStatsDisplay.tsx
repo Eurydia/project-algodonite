@@ -1,39 +1,130 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { deviation, mean, variance } from "d3-array";
+import { extent, mean, quantile, sum } from "d3-array";
 import { useMemo, type FC } from "react";
+import { StatItem } from "./StatItem";
 
 type Props = {
   data: number[];
+  dataOrigin: "sample" | "population";
 };
 export const DispersionStatsDisplay: FC<Props> = ({
   data,
+  dataOrigin,
 }) => {
   const stat = useMemo(() => {
-    const var_ = variance(data);
-    const std = deviation(data);
-    let mad: number | undefined;
-    const mu = mean(data);
-    if (mu) {
-      mad = mean(data.map((datum) => Math.abs(datum - mu)));
+    const [min, max] = extent(data);
+    let range: number | undefined;
+    if (min !== undefined && max !== undefined) {
+      range = max - min;
     }
+    const mu = mean(data);
+    const size =
+      dataOrigin === "population"
+        ? data.length
+        : data.length - 1;
+
+    let sumSqDiff: number | undefined;
+    if (mu !== undefined) {
+      sumSqDiff = sum(
+        data.map((datum) => Math.pow(datum - mu, 2))
+      );
+    }
+
+    let std: number | undefined;
+    if (sumSqDiff !== undefined && size > 0) {
+      std = Math.sqrt(sumSqDiff / size);
+    }
+
+    let var_: number | undefined;
+    if (std !== undefined) {
+      var_ = Math.pow(std, 2);
+    }
+
     let cv: number | undefined;
     if (std && mu) {
-      cv = std / mu;
+      cv = std / Math.abs(mu);
     }
 
-    let rMad: number | undefined;
-    if (mad && mu) {
-      rMad = mad / mu;
+    const q25 = quantile(data, 0.25);
+    const q75 = quantile(data, 0.75);
+    let iqr: number | undefined;
+    if (q25 !== undefined && q75 !== undefined) {
+      iqr = q75 - q25;
     }
 
-    return {
-      ค่าความแปรปรวน: var_,
-      ส่วนเบี่ยงเบนมาตรฐาน: std,
-      ค่าเฉลี่ยของส่วนเบี่ยงเบนสัมบูรณ์: mad,
-      ค่าสัมประสิทธิ์ของการแปรปรวน: cv,
-      สัมประสิทธิ์ของส่วนเบี่ยงเบนเฉลี่ย: rMad,
-    };
-  }, [data]);
+    return [
+      {
+        label: "พิสัย $R$",
+        value: range,
+        expr: `R &= x_{\\text{max}} - x_{\\text{min}}`,
+        exprExt:
+          range !== undefined
+            ? `&=${max?.toLocaleString(
+                "fullwide"
+              )} - ${min?.toLocaleString("fullwide")}`
+            : undefined,
+      },
+      {
+        label: "พิสัยระหว่างควอร์ไทล์ $\\text{IQR}$",
+        value: iqr,
+        exprExt:
+          iqr !== undefined
+            ? `&=${q75?.toLocaleString(
+                "fullwide"
+              )} - ${q25?.toLocaleString("fullwide")}`
+            : undefined,
+        expr: `\\text{IQR} &= Q_{3} - Q_{1}`,
+      },
+      {
+        label:
+          dataOrigin === "population"
+            ? `ส่วนเบี่ยงเบนมาตรฐาน $\\sigma$`
+            : `ส่วนเบี่ยงเบนมาตรฐาน $s$`,
+        value: std,
+        exprExt:
+          std !== undefined
+            ? `
+            &=\\sqrt{\\frac{1}{${size.toLocaleString(
+              "fullwide"
+            )}} (${sumSqDiff?.toLocaleString(
+                "fullwide"
+              )}) }\\\\
+              &=\\sqrt{${(sumSqDiff! / size).toLocaleString(
+                "fullwide"
+              )}}`
+            : undefined,
+        expr:
+          dataOrigin === "population"
+            ? `\\sigma &= \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_{i} - \\mu)^{2} }`
+            : `s &= \\sqrt{\\frac{1}{n-1} \\sum_{i=1}^{n} (x_{i} - \\overline{x})^{2} }`,
+      },
+      {
+        label:
+          dataOrigin === "population"
+            ? `ค่าความแปรปรวน $\\sigma^{2}$`
+            : `ค่าความแปรปรวน $s^2$`,
+        expr:
+          dataOrigin === "population"
+            ? `&=\\sigma^{2}`
+            : `&=s^2`,
+        value: var_,
+      },
+      {
+        label: `สัมประสิทธิ์ของการแปรผัน $\\text{CV}$`,
+        value: cv,
+        exprExt:
+          cv !== undefined
+            ? `&=\\frac{${std?.toLocaleString(
+                "fullwide"
+              )}}{|${mu?.toLocaleString("fullwide")}|}`
+            : undefined,
+        expr:
+          dataOrigin === "population"
+            ? `\\text{CV}&=\\frac{\\sigma}{|\\mu|}`
+            : `\\text{CV}&=\\frac{s}{|\\overline{x}|}`,
+      },
+    ];
+  }, [data, dataOrigin]);
 
   return (
     <Box>
@@ -53,21 +144,11 @@ export const DispersionStatsDisplay: FC<Props> = ({
         useFlexGap
         flexWrap="wrap"
       >
-        {Object.entries(stat).map(([k, value], index) => (
-          <Stack
+        {stat.map((data, index) => (
+          <StatItem
             key={`stat-item-${index}`}
-            spacing={1}
-            direction="row"
-            flexWrap="wrap"
-            useFlexGap
-          >
-            <Typography>{`${k}:`}</Typography>
-            <Typography>
-              {value === undefined
-                ? "ไม่มีข้อมูล"
-                : value.toLocaleString("fullwide")}
-            </Typography>
-          </Stack>
+            {...data}
+          />
         ))}
       </Stack>
     </Box>

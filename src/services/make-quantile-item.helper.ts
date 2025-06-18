@@ -76,6 +76,6 @@ export const makePercentileItem = (
             return fmt;
           })
           .join(",&")}\\rangle\\end{matrix}
-        \\\\&=${valueLeft} + (${decimal} \\cdot|${valueLeft} - ${valueLeft}|)`,
+        \\\\&=${valueLeft} + (${decimal} \\cdot|${valueRight} - ${valueLeft}|)`,
   };
 };

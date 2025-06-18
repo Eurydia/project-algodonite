@@ -19,7 +19,7 @@ export const CentralStatsDisplay: FC<Props> = ({
     if (size > 0) {
       dataMean = dataSum / size;
     }
-    const dataSorted = [...data].sort();
+    const dataSorted = [...data].sort((a, b) => a - b);
 
     const dataMedian = median(data);
 

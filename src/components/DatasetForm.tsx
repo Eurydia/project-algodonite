@@ -87,8 +87,12 @@ export const DatasetForm: FC<Props> = ({
           ${
             parsed.length > 0
               ? `$${parsed
-                  .map((tok) =>
-                    tok.toLocaleString("fullwide")
+                  .map(
+                    (tok) =>
+                      `\\underline{${tok.toLocaleString(
+                        "fullwide",
+                        { useGrouping: false }
+                      )}}`
                   )
                   .join(", ")}$`
               : `ว่าง`

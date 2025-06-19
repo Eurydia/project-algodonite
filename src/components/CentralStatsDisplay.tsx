@@ -44,7 +44,7 @@ export const CentralStatsDisplay: FC<Props> = ({
         expr:
           dataOrigin === "sample"
             ? `\\overline{x}&=\\frac{1}{n}\\sum_{i=1}^{n} x_{i}`
-            : `\\mu=\\frac{1}{N}\\sum_{i=1}^{N} x_{i}`,
+            : `\\mu&=\\frac{1}{N}\\sum_{i=1}^{N} x_{i}`,
         exprExt:
           dataMean === undefined
             ? undefined

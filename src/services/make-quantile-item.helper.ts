@@ -1,6 +1,7 @@
 export const makeQuantileItem = (
   dataSorted: number[],
-  r: number
+  r: number,
+  dataOrigin: "population" | "sample"
 ) => {
   const size = dataSorted.length + 1;
   const pos = r * (size / 4);
@@ -20,7 +21,9 @@ export const makeQuantileItem = (
   return {
     label: `ควอร์ไทล์ที่ $${r}$`,
     value: isNaN(value) ? undefined : value,
-    expr: `Q_{${r}}&=\\frac{${r}}{4}(N+1)`,
+    expr: `Q_{${r}}&=\\frac{${r}}{4}(${
+      dataOrigin === "population" ? "N" : "n"
+    }+1)`,
     exprExt: isNaN(value)
       ? undefined
       : `&=\\frac{${r}\\cdot${size}}{4}
@@ -41,7 +44,8 @@ export const makeQuantileItem = (
 
 export const makePercentileItem = (
   dataSorted: number[],
-  r: number
+  r: number,
+  dataOrigin: "population" | "sample"
 ) => {
   const size = dataSorted.length + 1;
   const pos = (r / 100) * size;
@@ -61,7 +65,9 @@ export const makePercentileItem = (
   return {
     label: `เปอร์เซ็นไทล์ที่ $${r}$`,
     value: isNaN(value) ? undefined : value,
-    expr: `P_{${r}}&=\\frac{${r}}{100}(N+1)`,
+    expr: `P_{${r}}&=\\frac{${r}}{100}(${
+      dataOrigin === "population" ? "N" : "n"
+    }+1)`,
     exprExt: isNaN(value)
       ? undefined
       : `&=\\frac{${r}\\cdot${size}}{100}

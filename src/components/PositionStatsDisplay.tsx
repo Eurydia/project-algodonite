@@ -2,7 +2,6 @@ import {
   makePercentileItem,
   makeQuantileItem,
 } from "@/services/make-quantile-item.helper";
-import { PercentRounded } from "@mui/icons-material";
 import {
   Box,
   Grid,
@@ -16,9 +15,11 @@ import { StatItem } from "./StatItem";
 
 type Props = {
   data: number[];
+  dataOrigin: "population" | "sample";
 };
 export const PositionStatsDisplay: FC<Props> = ({
   data,
+  dataOrigin,
 }) => {
   const [percentile, setPercentile] = useState(50);
 
@@ -27,16 +28,16 @@ export const PositionStatsDisplay: FC<Props> = ({
     dataSorted.sort((a, b) => a - b);
 
     return [
-      makeQuantileItem(dataSorted, 1),
-      makeQuantileItem(dataSorted, 2),
-      makeQuantileItem(dataSorted, 3),
+      makeQuantileItem(dataSorted, 1, dataOrigin),
+      makeQuantileItem(dataSorted, 2, dataOrigin),
+      makeQuantileItem(dataSorted, 3, dataOrigin),
     ];
-  }, [data]);
+  }, [data, dataOrigin]);
 
   const percentileItem = useMemo(() => {
     const q = [...data].sort((a, b) => a - b);
-    return makePercentileItem(q, percentile);
-  }, [data, percentile]);
+    return makePercentileItem(q, percentile, dataOrigin);
+  }, [data, dataOrigin, percentile]);
 
   return (
     <Box>
@@ -64,14 +65,12 @@ export const PositionStatsDisplay: FC<Props> = ({
           />
         ))}
         <Typography gutterBottom>เปอร์เซ็นไทล์</Typography>
+      </Stack>
+      <Box>
         <Grid
           container
           spacing={2}
-          sx={{ alignItems: "center" }}
         >
-          <Grid>
-            <PercentRounded />
-          </Grid>
           <Grid size="grow">
             <Slider
               max={99}
@@ -80,7 +79,7 @@ export const PositionStatsDisplay: FC<Props> = ({
               onChange={(_, v) => setPercentile(v)}
             />
           </Grid>
-          <Grid>
+          <Grid size={2}>
             <Input
               value={percentile}
               size="small"
@@ -107,8 +106,8 @@ export const PositionStatsDisplay: FC<Props> = ({
             />
           </Grid>
         </Grid>
-        <StatItem {...percentileItem} />
-      </Stack>
+      </Box>
+      <StatItem {...percentileItem} />
     </Box>
   );
 };

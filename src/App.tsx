@@ -24,7 +24,7 @@ export const App: FC = () => {
   >("population");
 
   const handleDataChange = useCallback((dt: number[]) => {
-    dt.sort();
+    dt.sort((a, b) => a - b);
     setData([...dt]);
   }, []);
 

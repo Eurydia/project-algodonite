@@ -10,7 +10,7 @@ import {
   Stack,
   ThemeProvider,
 } from "@mui/material";
-import { useState, type FC } from "react";
+import { useCallback, useState, type FC } from "react";
 import { CentralStatsDisplay } from "./components/CentralStatsDisplay";
 import { DatasetForm } from "./components/DatasetForm";
 import { DispersionStatsDisplay } from "./components/DispersionStatsDisplay";
@@ -22,6 +22,11 @@ export const App: FC = () => {
   const [dataOrigin, setDataOrigin] = useState<
     "sample" | "population"
   >("population");
+
+  const handleDataChange = useCallback((dt: number[]) => {
+    dt.sort();
+    setData([...dt]);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -72,7 +77,7 @@ export const App: FC = () => {
               </FormControl>
               <DatasetForm
                 initValue={data}
-                onSubmit={setData}
+                onSubmit={handleDataChange}
                 isPopulation={dataOrigin === "population"}
               />
             </Stack>
@@ -91,8 +96,8 @@ export const App: FC = () => {
             sx={{ padding: 1 }}
           >
             <CentralStatsDisplay
-              dataOrigin={dataOrigin}
-              data={data}
+              isPopulation={dataOrigin === "population"}
+              dataSorted={data}
             />
           </Paper>
           <Paper
@@ -101,7 +106,7 @@ export const App: FC = () => {
             component="div"
           >
             <DispersionStatsDisplay
-              dataOrigin={dataOrigin}
+              isPopulation={dataOrigin === "population"}
               data={data}
             />
           </Paper>
@@ -110,8 +115,8 @@ export const App: FC = () => {
             sx={{ padding: 1 }}
           >
             <PositionStatsDisplay
-              data={data}
-              dataOrigin={dataOrigin}
+              dataSorted={data}
+              isPopulation={dataOrigin === "population"}
             />
           </Paper>
         </Grid>

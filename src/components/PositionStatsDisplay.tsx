@@ -10,104 +10,151 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useMemo, useState, type FC } from "react";
+import {
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FC,
+} from "react";
 import { StatItem } from "./StatItem";
 
-type Props = {
-  data: number[];
-  dataOrigin: "population" | "sample";
+type PercentileBlockProps = {
+  value: number;
+  onChange: (v: number) => unknown;
+  item: {
+    label: string;
+    value?: number;
+    expr?: string;
+    exprExt?: string;
+  };
 };
-export const PositionStatsDisplay: FC<Props> = ({
-  data,
-  dataOrigin,
-}) => {
-  const [percentile, setPercentile] = useState(50);
-
-  const stat = useMemo(() => {
-    const dataSorted = [...data];
-    dataSorted.sort((a, b) => a - b);
-
-    return [
-      makeQuantileItem(dataSorted, 1, dataOrigin),
-      makeQuantileItem(dataSorted, 2, dataOrigin),
-      makeQuantileItem(dataSorted, 3, dataOrigin),
-    ];
-  }, [data, dataOrigin]);
-
-  const percentileItem = useMemo(() => {
-    const q = [...data].sort((a, b) => a - b);
-    return makePercentileItem(q, percentile, dataOrigin);
-  }, [data, dataOrigin, percentile]);
-
-  return (
-    <Box>
-      <Typography
-        component="div"
-        variant="h5"
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 2,
-        }}
-      >
-        ค่าวัดตำแหน่งของข้อมูล
-      </Typography>
-
-      <Stack
-        spacing={1}
-        useFlexGap
-        flexWrap="wrap"
-      >
-        {stat.map((data, index) => (
-          <StatItem
-            key={`stat-item-${index}`}
-            {...data}
-          />
-        ))}
-        <Typography gutterBottom>เปอร์เซ็นไทล์</Typography>
-      </Stack>
-      <Box>
-        <Grid
-          container
-          spacing={2}
+const PercentileBlock: FC<PercentileBlockProps> = memo(
+  ({ value, onChange, item }) => {
+    const handleSliderChange = useCallback(
+      (_: unknown, v: number) => {
+        onChange(v);
+      },
+      [onChange]
+    );
+    const handleInputChange = useCallback(
+      (
+        e: ChangeEvent<
+          HTMLTextAreaElement | HTMLInputElement
         >
-          <Grid size="grow">
-            <Slider
-              max={99}
-              min={1}
-              value={percentile}
-              onChange={(_, v) => setPercentile(v)}
-            />
+      ) => {
+        const v =
+          e.target.value === ""
+            ? 0
+            : Number(e.target.value);
+        onChange(Math.max(Math.min(99, v), 1));
+      },
+      [onChange]
+    );
+
+    const handleBlur = useCallback(() => {
+      if (value < 1) {
+        onChange(1);
+      } else if (value > 99) {
+        onChange(99);
+      }
+    }, [onChange, value]);
+
+    return (
+      <Stack>
+        <Typography gutterBottom>เปอร์เซ็นไทล์</Typography>
+        <Box>
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size="grow">
+              <Slider
+                max={99}
+                min={1}
+                value={value}
+                onChange={handleSliderChange}
+              />
+            </Grid>
+            <Grid size={2}>
+              <Input
+                value={value}
+                size="small"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                inputProps={{
+                  step: 1,
+                  min: 1,
+                  max: 99,
+                  type: "number",
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid size={2}>
-            <Input
-              value={percentile}
-              size="small"
-              onChange={(e) => {
-                const v =
-                  e.target.value === ""
-                    ? 0
-                    : Number(e.target.value);
-                setPercentile(Math.max(Math.min(99, v), 1));
-              }}
-              onBlur={() => {
-                if (percentile < 0) {
-                  setPercentile(0);
-                } else if (percentile > 100) {
-                  setPercentile(100);
-                }
-              }}
-              inputProps={{
-                step: 1,
-                min: 1,
-                max: 99,
-                type: "number",
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-      <StatItem {...percentileItem} />
-    </Box>
-  );
+        </Box>
+        <StatItem {...item} />
+      </Stack>
+    );
+  }
+);
+
+type Props = {
+  dataSorted: number[];
+  isPopulation: boolean;
 };
+export const PositionStatsDisplay: FC<Props> = memo(
+  ({ dataSorted, isPopulation }) => {
+    const [percentile, setPercentile] = useState(50);
+
+    const stat = useMemo(() => {
+      return [
+        makeQuantileItem(dataSorted, 1, isPopulation),
+        makeQuantileItem(dataSorted, 2, isPopulation),
+        makeQuantileItem(dataSorted, 3, isPopulation),
+      ];
+    }, [dataSorted, isPopulation]);
+
+    const percentileStat = useMemo(() => {
+      return makePercentileItem(
+        dataSorted,
+        percentile,
+        isPopulation
+      );
+    }, [dataSorted, percentile, isPopulation]);
+
+    return (
+      <Box>
+        <Typography
+          component="div"
+          variant="h5"
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+          }}
+        >
+          ค่าวัดตำแหน่งของข้อมูล
+        </Typography>
+
+        <Stack
+          spacing={1}
+          useFlexGap
+          flexWrap="wrap"
+        >
+          {stat.map((data, index) => (
+            <StatItem
+              key={`stat-item-${index}`}
+              {...data}
+            />
+          ))}
+        </Stack>
+        <PercentileBlock
+          value={percentile}
+          onChange={setPercentile}
+          item={percentileStat}
+        />
+      </Box>
+    );
+  }
+);

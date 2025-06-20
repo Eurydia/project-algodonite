@@ -100,6 +100,11 @@ export const App: FC = () => {
               <Typography
                 gutterBottom
                 component="div"
+                whiteSpace="wrap"
+                sx={{
+                  wordWrap: "normal",
+                  wordBreak: "keep-all",
+                }}
               >
                 เว็ปไซต์จัดทำให้เป็นสื่อการสอนหมวดคณิตศาสตร์
                 โรงเรียนอยุธยาวิทยาลัย

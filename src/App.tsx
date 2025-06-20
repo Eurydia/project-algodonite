@@ -9,7 +9,9 @@ import {
   RadioGroup,
   Stack,
   ThemeProvider,
+  Typography,
 } from "@mui/material";
+import { indigo } from "@mui/material/colors";
 import { useCallback, useState, type FC } from "react";
 import { CentralStatsDisplay } from "./components/CentralStatsDisplay";
 import { DatasetForm } from "./components/DatasetForm";
@@ -43,45 +45,83 @@ export const App: FC = () => {
             top: 0,
           }}
         >
-          <Paper
-            variant="outlined"
+          <Stack
+            spacing={1}
             sx={{
-              padding: 1,
               position: { md: "sticky", xs: "static" },
               top: 0,
             }}
           >
-            <Stack spacing={1}>
-              <FormControl>
-                <FormLabel>{`แหล่งที่มาของข้อมูล`}</FormLabel>
-                <RadioGroup
-                  row
-                  value={dataOrigin}
-                  onChange={(e) =>
-                    setDataOrigin(
-                      e.target.value as typeof dataOrigin
-                    )
-                  }
-                >
-                  <FormControlLabel
-                    value="population"
-                    control={<Radio />}
-                    label="ประชากร"
-                  />
-                  <FormControlLabel
-                    value="sample"
-                    control={<Radio />}
-                    label="กลุ่มตัวอย่าง"
-                  />
-                </RadioGroup>
-              </FormControl>
-              <DatasetForm
-                initValue={data}
-                onSubmit={handleDataChange}
-                isPopulation={dataOrigin === "population"}
-              />
-            </Stack>
-          </Paper>
+            <Paper
+              variant="outlined"
+              sx={{ padding: 1 }}
+            >
+              <Stack spacing={1}>
+                <FormControl>
+                  <FormLabel>{`แหล่งที่มาของข้อมูล`}</FormLabel>
+                  <RadioGroup
+                    row
+                    value={dataOrigin}
+                    onChange={(e) =>
+                      setDataOrigin(
+                        e.target.value as typeof dataOrigin
+                      )
+                    }
+                  >
+                    <FormControlLabel
+                      value="population"
+                      control={<Radio />}
+                      label="ประชากร"
+                    />
+                    <FormControlLabel
+                      value="sample"
+                      control={<Radio />}
+                      label="กลุ่มตัวอย่าง"
+                    />
+                  </RadioGroup>
+                </FormControl>
+                <DatasetForm
+                  initValue={data}
+                  onSubmit={handleDataChange}
+                  isPopulation={dataOrigin === "population"}
+                />
+              </Stack>
+            </Paper>
+            <Paper
+              elevation={8}
+              sx={{
+                padding: 1,
+                backgroundColor: indigo[300],
+                color: theme.palette.getContrastText(
+                  indigo[300]
+                ),
+              }}
+            >
+              <Typography
+                gutterBottom
+                component="div"
+              >
+                เว็ปไซต์จัดทำให้เป็นสื่อการสอนหมวดคณิตศาสตร์
+                โรงเรียนอยุธยาวิทยาลัย
+              </Typography>
+              <Typography fontWeight={700}>
+                พัฒนาและปรับปรุงโดย
+              </Typography>
+              <Typography>
+                {`คุณครูชุติมา ประภัสสรพิทยา และ`}
+              </Typography>
+              <Typography gutterBottom>
+                {`นายธนกร พุทธรักษา`}
+              </Typography>
+
+              <Typography
+                variant="subtitle2"
+                component="div"
+              >
+                แก้ไขครั้งล่าสุดเมื่อ: 19 มิถุนายน พ.ศ. 2568
+              </Typography>
+            </Paper>
+          </Stack>
         </Grid>
         <Grid
           size={{ xs: 12, md: "grow" }}

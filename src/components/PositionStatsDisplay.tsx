@@ -72,18 +72,11 @@ const PercentileBlock: FC<PercentileBlockProps> = memo(
         <Box>
           <Grid
             container
-            spacing={2}
+            spacing={1}
           >
-            <Grid size="grow">
-              <Slider
-                max={99}
-                min={1}
-                value={value}
-                onChange={handleSliderChange}
-              />
-            </Grid>
-            <Grid size={2}>
+            <Grid size={1}>
               <Input
+                fullWidth
                 value={value}
                 size="small"
                 onChange={handleInputChange}
@@ -94,6 +87,14 @@ const PercentileBlock: FC<PercentileBlockProps> = memo(
                   max: 99,
                   type: "number",
                 }}
+              />
+            </Grid>
+            <Grid size={8}>
+              <Slider
+                max={99}
+                min={1}
+                value={value}
+                onChange={handleSliderChange}
               />
             </Grid>
           </Grid>
@@ -246,14 +247,12 @@ export const PositionStatsDisplay: FC<Props> = memo(
         q2,
         q3,
         {
-          label: `ค่าต่ำสุด`,
+          label: `$Q_{1} - 1.5 \\cdot (Q_{3} - Q_{1})$`,
           value: boxMin,
-          expr: `m &= Q_{1} - 1.5 \\cdot (Q_{3} - Q_{1})`,
         },
         {
-          label: `ค่าสูงสุด`,
+          label: `$Q_{3} + 1.5 \\cdot (Q_{3} - Q_{1})$`,
           value: boxMax,
-          expr: `M &= Q_{3} + 1.5 \\cdot (Q_{3} - Q_{1})`,
         },
         {
           label: `ค่านอกเกณฑ์`,

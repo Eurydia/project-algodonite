@@ -1,5 +1,6 @@
+import { makeQuantileItem } from "@/services/make-quantile-item.helper";
 import { Box, Stack, Typography } from "@mui/material";
-import { extent, mean, quantile, sum } from "d3-array";
+import { extent, mean, sum } from "d3-array";
 import { memo, useMemo, type FC } from "react";
 import { StatItem } from "./StatItem";
 
@@ -42,8 +43,8 @@ export const DispersionStatsDisplay: FC<Props> = memo(
         cv = std / Math.abs(mu);
       }
 
-      const q25 = quantile(data, 0.25);
-      const q75 = quantile(data, 0.75);
+      const q25 = makeQuantileItem(data, 1, false).value;
+      const q75 = makeQuantileItem(data, 3, false).value;
       let iqr: number | undefined;
       if (q25 !== undefined && q75 !== undefined) {
         iqr = q75 - q25;

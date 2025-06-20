@@ -11,7 +11,6 @@ import {
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import { indigo } from "@mui/material/colors";
 import { useCallback, useState, type FC } from "react";
 import { CentralStatsDisplay } from "./components/CentralStatsDisplay";
 import { DatasetForm } from "./components/DatasetForm";
@@ -54,9 +53,16 @@ export const App: FC = () => {
           >
             <Paper
               variant="outlined"
-              sx={{ padding: 1 }}
+              sx={{
+                padding: 1,
+                height: "100%",
+                justifyContent: "space-between",
+              }}
             >
-              <Stack spacing={1}>
+              <Stack
+                component="div"
+                spacing={1}
+              >
                 <FormControl>
                   <FormLabel>{`แหล่งที่มาของข้อมูล`}</FormLabel>
                   <RadioGroup
@@ -86,45 +92,6 @@ export const App: FC = () => {
                   isPopulation={dataOrigin === "population"}
                 />
               </Stack>
-            </Paper>
-            <Paper
-              elevation={8}
-              sx={{
-                padding: 1,
-                backgroundColor: indigo[300],
-                color: theme.palette.getContrastText(
-                  indigo[300]
-                ),
-              }}
-            >
-              <Typography
-                gutterBottom
-                component="div"
-                whiteSpace="wrap"
-                sx={{
-                  wordWrap: "normal",
-                  wordBreak: "keep-all",
-                }}
-              >
-                เว็ปไซต์จัดทำให้เป็นสื่อการสอนหมวดคณิตศาสตร์
-                โรงเรียนอยุธยาวิทยาลัย
-              </Typography>
-              <Typography fontWeight={700}>
-                พัฒนาและปรับปรุงโดย
-              </Typography>
-              <Typography>
-                {`คุณครูชุติมา ประภัสสรพิทยา และ`}
-              </Typography>
-              <Typography gutterBottom>
-                {`นายธนกร พุทธรักษา`}
-              </Typography>
-
-              <Typography
-                variant="subtitle2"
-                component="div"
-              >
-                แก้ไขครั้งล่าสุดเมื่อ: 19 มิถุนายน พ.ศ. 2568
-              </Typography>
             </Paper>
           </Stack>
         </Grid>
@@ -163,6 +130,39 @@ export const App: FC = () => {
               dataSorted={data}
               isPopulation={dataOrigin === "population"}
             />
+          </Paper>
+          <Paper
+            elevation={4}
+            variant="elevation"
+            sx={{
+              padding: 1,
+              // display: "flex",
+              // alignItems: "center",
+              // flexDirection: "column",
+              color: theme.palette.getContrastText(
+                theme.palette.primary.main
+              ),
+              backgroundColor: theme.palette.primary.main,
+            }}
+          >
+            <Typography gutterBottom>
+              {`เว็ปไซต์จัดทำให้เป็นสื่อการสอนหมวดคณิตศาสตร์
+          โรงเรียนอยุธยาวิทยาลัย`}
+            </Typography>
+            <Typography fontWeight={700}>
+              พัฒนาและปรับปรุงโดย
+            </Typography>
+            <Typography>
+              {`คุณครูชุติมา ประภัสสรพิทยา และ`}
+            </Typography>
+            <Typography gutterBottom>
+              {`นายธนกร พุทธรักษา`}
+            </Typography>
+
+            <Typography
+              variant="subtitle2"
+              component="div"
+            >{`(แก้ไขครั้งล่าสุดเมื่อ: 19 มิถุนายน พ.ศ. 2568)`}</Typography>
           </Paper>
         </Grid>
       </Grid>

@@ -1,3 +1,8 @@
 html {
   scrollbar-gutter: stable;
+  height: 100vh;
+}
+
+#root {
+  height: 100%;
 }

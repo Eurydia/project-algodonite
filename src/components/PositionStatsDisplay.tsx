@@ -2,7 +2,6 @@ import {
   makePercentileItem,
   makeQuantileItem,
 } from "@/services/make-quantile-item.helper";
-import { niceScale } from "@/services/range-maker.helper";
 import {
   Box,
   Grid,
@@ -11,22 +10,19 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { blue, deepOrange } from "@mui/material/colors";
+import { BoxPlotChart } from "@sgratzl/chartjs-chart-boxplot";
+import { max, min } from "d3-array";
 import {
   memo,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type FC,
 } from "react";
-import {
-  VictoryAxis,
-  VictoryBoxPlot,
-  VictoryChart,
-  VictoryGroup,
-  VictoryLabel,
-  VictoryLine,
-} from "victory";
 import { StatItem } from "./StatItem";
 
 type PercentileBlockProps = {
@@ -109,63 +105,92 @@ const PercentileBlock: FC<PercentileBlockProps> = memo(
 );
 
 type BoxPlotBlockProps = {
-  percentile: number;
-  q1: number;
-  q2: number;
-  q3: number;
-  vMin: number;
-  vMax: number;
+  data: {
+    q1: number;
+    median: number;
+    q3: number;
+    whiskerMin: number;
+    whiskerMax: number;
+    items: number[];
+  };
 };
 const BoxPlotBlock: FC<BoxPlotBlockProps> = memo(
-  ({ q1, q2, q3, vMax, vMin, percentile }) => {
-    return (
-      <VictoryChart
-        height={200}
-        horizontal
-        domain={{
-          y: niceScale(vMin, vMax, 8),
-          x: [0, 0.5],
-        }}
-      >
-        <VictoryAxis tickValues={[]} />
-        <VictoryAxis dependentAxis />
-        <VictoryGroup>
-          <VictoryBoxPlot
-            labels
-            labelOrientation="top"
-            min={"min"}
-            q1={"q1"}
-            q3="q3"
-            max="max"
-            median={"mean"}
-            data={[
-              {
-                x: 0.25,
-                q1,
-                mean: q2,
-                q3,
-                max: vMax,
-                min: vMin,
-              },
-            ]}
-          />
-          <VictoryLine
-            data={[
-              { x: 0, y: percentile },
-              { x: 0.25, y: percentile },
-              { x: 0.5, y: percentile },
-            ]}
-            labels={({ datum }) => datum.label}
-            labelComponent={
-              <VictoryLabel
-                dy={8}
-                style={{ fontSize: 12, fill: "#ff4d4f" }}
-              />
-            }
-          />
-        </VictoryGroup>
-      </VictoryChart>
-    );
+  ({ data }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const chartRef = useRef<BoxPlotChart | null>(null);
+
+    useEffect(() => {
+      if (canvasRef.current === null) {
+        return;
+      }
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx === null) {
+        return;
+      }
+      if (chartRef.current !== null) {
+        chartRef.current.destroy();
+      }
+      chartRef.current = new BoxPlotChart(ctx, {
+        data: {
+          labels: [""],
+          datasets: [
+            {
+              backgroundColor: blue.A100,
+              borderColor: blue.A700,
+              borderWidth: 3,
+              itemStyle: "circle",
+              itemRadius: 10,
+              outlierStyle: "circle",
+              outlierBackgroundColor: deepOrange.A100,
+              outlierBorderColor: deepOrange.A700,
+              outlierBorderWidth: 3,
+              outlierRadius: 10,
+              data: [
+                {
+                  whiskerMax: data.whiskerMax,
+                  whiskerMin: data.whiskerMin,
+                  q1: data.q1,
+                  q3: data.q3,
+                  median: data.median,
+                  items: data.items.filter(
+                    (v) =>
+                      v >= data.whiskerMin &&
+                      v <= data.whiskerMax
+                  ),
+                  outliers: data.items.filter(
+                    (v) =>
+                      v < data.whiskerMin ||
+                      v > data.whiskerMax
+                  ),
+                },
+              ],
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          scales: {
+            x: {
+              type: "linear",
+              suggestedMin: Math.min(
+                data.whiskerMin,
+                min(data.items)!
+              ),
+              suggestedMax: Math.max(
+                data.whiskerMax,
+                max(data.items)!
+              ),
+              grace: "5%",
+              beginAtZero: false,
+            },
+          },
+        },
+      }) as unknown as BoxPlotChart;
+      return () => chartRef.current?.destroy();
+    }, [data]);
+
+    return <canvas ref={canvasRef} />;
   }
 );
 
@@ -178,10 +203,62 @@ export const PositionStatsDisplay: FC<Props> = memo(
     const [percentile, setPercentile] = useState(50);
 
     const stat = useMemo(() => {
+      const q1 = makeQuantileItem(
+        dataSorted,
+        1,
+        isPopulation
+      );
+      const q2 = makeQuantileItem(
+        dataSorted,
+        2,
+        isPopulation
+      );
+      const q3 = makeQuantileItem(
+        dataSorted,
+        3,
+        isPopulation
+      );
+
+      let boxMin: number | undefined;
+      let boxMax: number | undefined;
+      if (
+        q1.value !== undefined &&
+        q3.value !== undefined
+      ) {
+        boxMin = q1.value - 1.5 * (q3.value - q1.value);
+        boxMax = q3.value + 1.5 * (q3.value - q1.value);
+      }
+      let outliers: string | undefined;
+      if (boxMin !== undefined && boxMax !== undefined) {
+        const outliersValues = dataSorted.filter(
+          (v) => v > boxMax || v < boxMin
+        );
+        outliers =
+          outliersValues.length > 0
+            ? outliersValues
+                .map((v) => v.toLocaleString("fullwide"))
+                .join(",")
+            : "-";
+      }
+
       return [
-        makeQuantileItem(dataSorted, 1, isPopulation),
-        makeQuantileItem(dataSorted, 2, isPopulation),
-        makeQuantileItem(dataSorted, 3, isPopulation),
+        q1,
+        q2,
+        q3,
+        {
+          label: `ค่าต่ำสุด`,
+          value: boxMin,
+          expr: `m &= Q_{1} - 1.5 \\cdot (Q_{3} - Q_{1})`,
+        },
+        {
+          label: `ค่าสูงสุด`,
+          value: boxMax,
+          expr: `M &= Q_{3} + 1.5 \\cdot (Q_{3} - Q_{1})`,
+        },
+        {
+          label: `ค่านอกเกณฑ์`,
+          value: outliers,
+        },
       ];
     }, [dataSorted, isPopulation]);
 
@@ -192,6 +269,32 @@ export const PositionStatsDisplay: FC<Props> = memo(
         isPopulation
       );
     }, [dataSorted, percentile, isPopulation]);
+
+    const plotData = useMemo(() => {
+      if (dataSorted.length === 0) {
+        return undefined;
+      }
+
+      const [q1, q2, q3, wMin, wMax] = stat;
+      if (
+        q1.value === undefined ||
+        q2.value === undefined ||
+        q3.value === undefined ||
+        wMin === undefined ||
+        wMax === undefined
+      ) {
+        return undefined;
+      }
+
+      return {
+        q1: q1.value as number,
+        median: q2.value as number,
+        q3: q3.value as number,
+        whiskerMax: wMax.value as number,
+        whiskerMin: wMin.value as number,
+        items: dataSorted,
+      };
+    }, [dataSorted, stat]);
 
     return (
       <Box>
@@ -218,23 +321,15 @@ export const PositionStatsDisplay: FC<Props> = memo(
               {...data}
             />
           ))}
+          <PercentileBlock
+            value={percentile}
+            onChange={setPercentile}
+            item={percentileStat}
+          />
         </Stack>
-        <PercentileBlock
-          value={percentile}
-          onChange={setPercentile}
-          item={percentileStat}
-        />
-        {dataSorted.length > 0 &&
-          percentileStat.value !== undefined && (
-            <BoxPlotBlock
-              q1={stat[0].value!}
-              q2={stat[1].value!}
-              q3={stat[2].value!}
-              vMax={dataSorted[dataSorted.length - 1]}
-              vMin={dataSorted[0]}
-              percentile={percentileStat.value}
-            />
-          )}
+        {plotData !== undefined && (
+          <BoxPlotBlock data={plotData} />
+        )}
       </Box>
     );
   }

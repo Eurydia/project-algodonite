@@ -154,9 +154,6 @@ export const DatasetForm: FC<Props> = memo(
               autoCorrect: "off",
               autoSave: "off",
             },
-            htmlInput: {
-              inputMode: "numeric",
-            },
           }}
         />
         <ToolbarBlock

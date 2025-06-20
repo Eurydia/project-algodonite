@@ -13,10 +13,7 @@ export const CentralStatsDisplay: FC<Props> = memo(
       const size = dataSorted.length;
       const dtSum = sum(dataSorted);
 
-      let dataMean = mean(dataSorted);
-      if (size > 0) {
-        dataMean = undefined;
-      }
+      const dataMean = mean(dataSorted);
 
       return {
         label: !isPopulation

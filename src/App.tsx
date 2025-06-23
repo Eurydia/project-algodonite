@@ -16,23 +16,24 @@ export const App: FC = () => {
   return (
     <SplitPanelLayout
       left={
-        <Stack
-          spacing={2}
+        <Paper
+          elevation={4}
           sx={{
+            backgroundColor: "background.paper",
+            padding: 2,
             maxHeight: { md: "100%" },
             overflowY: "auto",
             scrollbarWidth: "none",
           }}
         >
-          <Paper
-            elevation={4}
-            sx={{
-              backgroundColor: "background.paper",
-              padding: 2,
-            }}
-          >
-            <DatasetInputForm onSubmit={setData} />
-          </Paper>
+          <DatasetInputForm onSubmit={setData} />
+        </Paper>
+      }
+      right={
+        <Stack spacing={2}>
+          <CentrumCard {...data} />
+          <DispersionCard {...data} />
+          <PositionalCard {...data} />
           <Paper
             variant="elevation"
             sx={{ padding: 2 }}
@@ -40,13 +41,6 @@ export const App: FC = () => {
           >
             <Attribution />
           </Paper>
-        </Stack>
-      }
-      right={
-        <Stack spacing={2}>
-          <CentrumCard {...data} />
-          <DispersionCard {...data} />
-          <PositionalCard {...data} />
         </Stack>
       }
     />

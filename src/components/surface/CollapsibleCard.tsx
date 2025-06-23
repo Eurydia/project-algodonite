@@ -18,7 +18,7 @@ type Props = {
 };
 export const CollapsibleCard: FC<Props> = memo(
   ({ slotContent, slotTitle }) => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const handleOpenToggle = useCallback(() => {
       setOpen((prev) => !prev);
     }, []);

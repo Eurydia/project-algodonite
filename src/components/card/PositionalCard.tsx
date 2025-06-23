@@ -22,8 +22,8 @@ export const PositionalCard: FC<Props> = memo(
 
     const plotData = useMemo(() => {
       const q1 = getQuantile(orderedDataset, 1);
-      const q2 = getQuantile(orderedDataset, 1);
-      const q3 = getQuantile(orderedDataset, 1);
+      const q2 = getQuantile(orderedDataset, 2);
+      const q3 = getQuantile(orderedDataset, 3);
       if (
         q1 === undefined ||
         q2 === undefined ||
@@ -33,7 +33,7 @@ export const PositionalCard: FC<Props> = memo(
       }
 
       const wMax = q3.value + 1.5 * (q3.value - q1.value);
-      const wMin = (q1.value = 1.5 * (q3.value - q1.value));
+      const wMin = q1.value - 1.5 * (q3.value - q1.value);
 
       return {
         q1: q1.value,
@@ -94,22 +94,3 @@ export const PositionalCard: FC<Props> = memo(
     );
   }
 );
-
-// {
-//   /* {stat.map((data, index) => (
-//             <StatItem
-//               key={`stat-item-${index}`}
-//               {...data}
-//             />
-//           ))}
-//           <PercentileBlock
-//             value={percentile}
-//             onChange={setPercentile}
-//             item={percentileStat}
-//           /> */
-// }
-// {
-//   /* {plotData !== undefined && (
-//           <BoxPlot data={plotData} />
-//         )} */
-// }

@@ -1,5 +1,6 @@
 import { Paper, Stack } from "@mui/material";
 import { useState, type FC } from "react";
+import { Attribution } from "./components/blogs/Attribution";
 import { CentrumCard } from "./components/card/CentrumCard";
 import { DispersionCard } from "./components/card/DispersionCard";
 import { PositionalCard } from "./components/card/PositionalCard";
@@ -15,18 +16,31 @@ export const App: FC = () => {
   return (
     <SplitPanelLayout
       left={
-        <Paper
-          elevation={4}
+        <Stack
+          spacing={2}
           sx={{
-            backgroundColor: "background.paper",
-            padding: 2,
             maxHeight: { md: "100%" },
             overflowY: "auto",
-            scrollbarWidth: "thin",
+            scrollbarWidth: "none",
           }}
         >
-          <DatasetInputForm onSubmit={setData} />
-        </Paper>
+          <Paper
+            elevation={4}
+            sx={{
+              backgroundColor: "background.paper",
+              padding: 2,
+            }}
+          >
+            <DatasetInputForm onSubmit={setData} />
+          </Paper>
+          <Paper
+            variant="elevation"
+            sx={{ padding: 2 }}
+            elevation={4}
+          >
+            <Attribution />
+          </Paper>
+        </Stack>
       }
       right={
         <Stack spacing={2}>

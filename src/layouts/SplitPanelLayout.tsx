@@ -33,7 +33,7 @@ export const SplitPanelLayout: FC<Props> = memo(
             height: { md: "100%" },
             maxHeight: { md: "100vh" },
             overflowY: "auto",
-            scrollbarWidth: "thin",
+            scrollbarWidth: "none",
           }}
         >
           {right}

@@ -44,9 +44,8 @@ export const BoxPlot: FC<BoxPlotProps> = memo(
               itemRadius: 10,
               outlierStyle: "circle",
               outlierBackgroundColor: secondary.light,
-              outlierBorderColor: secondary.dark,
-              outlierBorderWidth: 3,
               outlierRadius: 10,
+              outlierBorderWidth: 0,
               data: [
                 data === undefined
                   ? undefined

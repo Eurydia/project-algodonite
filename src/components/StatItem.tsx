@@ -6,7 +6,7 @@ import {
   useState,
   type FC,
 } from "react";
-import { MathBlock } from "./MathBlock";
+import { MathBlock } from "./data-display/MathBlock";
 
 type Props = {
   label: string;

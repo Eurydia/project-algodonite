@@ -1,8 +1,16 @@
 html {
-  scrollbar-gutter: stable;
   height: 100vh;
 }
 
 #root {
   height: 100%;
+}
+/* Make every MathJax v3 container scrollable if its content overflows */
+mjx-container {
+  overflow-x: auto; /* horizontal scroll when needed */
+  overflow-y: hidden; /* hide any vertical overflow */
+  white-space: nowrap; /* prevent internal line breaks */
+  box-sizing: border-box; /* include padding/border in width */
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  scrollbar-width: thin;
 }
